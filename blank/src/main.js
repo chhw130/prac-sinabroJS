@@ -19,15 +19,17 @@ const findElement = (startElement, selector) => {
   return null;
 };
 
-const getProductTemplate = ({ id, images, name, regularPrice }) => {
+const getProductTemplate = ({ id, images, name, regularPrice }, count = 0) => {
   return `<div class='product' data-product-id='${id}'>
   <img src='${images[0]}' alt='img-product'/>
   <p>${name}</p>
   <div class='flex items-center justify-between'>
     <span>Price : ${regularPrice}</span>
     <div>
-      <button disabled  class='btn-decrease  bg-green-200 hover:bg-green-300 text-green-800 py-1 px-3 rounded-full disabled:cursor-not-allowed disabled:opacity-80'>-</button>
-      <span class='cart-count'>0</span>
+      <button ${
+        !!count && 'disabled'
+      } class='btn-decrease bg-green-200 hover:bg-green-300 text-green-800 py-1 px-3 rounded-full disabled:cursor-not-allowed disabled:opacity-80'>-</button>
+      <span class='cart-count'>${count}</span>
       <button  class='btn-increase bg-green-200 hover:bg-green-300 text-green-800 py-1 px-3 rounded-full '>+</button>
     </div>
   </div>
@@ -40,6 +42,7 @@ async function main() {
   products.forEach((product) => {
     productMap[product.id] = product;
   });
+
   const productCntMap = {};
 
   const $products = document.querySelector('#products');
@@ -48,40 +51,65 @@ async function main() {
 
   $products.innerHTML = produtcsTemplate;
 
+  const updateProductCount = (id) => {
+    const $productCardElement = document.querySelector(`.product[data-product-id='${id}']`);
+    const $cartCount = $productCardElement.querySelector('.cart-count');
+    $cartCount.innerHTML = productCntMap[id];
+
+    if (!productCntMap[id]) {
+      cartCountElement.innerHTML = '';
+    }
+  };
+
+  const updateCart = () => {
+    // cart item 그려주기
+    const productIds = Object.keys(productCntMap);
+    const cartProductsTemplate = productIds
+      .map((id) => {
+        const product = productMap[id];
+        return getProductTemplate(product, productCntMap[id]);
+      })
+      .join('');
+    document.querySelector('.cart_items').innerHTML = cartProductsTemplate;
+
+    // cart 갯수 갱신 및 view그리기
+    const $totalCount = document.querySelector('.total_count');
+    const totalCount = Object.values(productCntMap).reduce((acc, cur) => acc + cur, 0);
+    $totalCount.innerHTML = `Cart(${totalCount})`;
+  };
+
+  const increaseProduct = (id) => {
+    if (!productCntMap[id]) {
+      productCntMap[id] = 0;
+    }
+    productCntMap[id] += 1;
+
+    updateProductCount(id);
+    updateCart();
+  };
+
+  const decreaseProduct = (id) => {
+    if (!productCntMap[id]) {
+      productCntMap[id] = 0;
+    }
+    productCntMap[id] -= 1;
+
+    updateProductCount(id);
+    updateCart();
+  };
+
   document.querySelector('#products').addEventListener('click', (e) => {
     const $targetElement = e.target;
     const $productCardElement = findElement($targetElement, '.product');
 
     const productId = $productCardElement.getAttribute('data-product-id');
 
-    if (!productCntMap[productId]) {
-      productCntMap[productId] = 0;
-    } else {
-      const productIds = Object.keys(productCntMap);
-      const cartProductsTemplate = productIds
-        .map((id) => {
-          const product = productMap[id];
-          return getProductTemplate(product);
-        })
-        .join('');
-      document.querySelector('.cart_items').innerHTML = cartProductsTemplate;
-    }
-
     if ($targetElement.matches('.btn-decrease')) {
-      productCntMap[productId] -= 1;
+      decreaseProduct(productId);
     }
     if ($targetElement.matches('.btn-increase')) {
-      productCntMap[productId] += 1;
+      increaseProduct(productId);
     }
-
-    const $cartCount = $productCardElement.querySelector('.cart-count');
-    $cartCount.innerHTML = productCntMap[productId];
-
-    const $totalCount = document.querySelector('.total_count');
-
-    const totalCount = Object.values(productCntMap).reduce((acc, cur) => acc + cur, 0);
-
-    $totalCount.innerHTML = `Cart(${totalCount})`;
   });
 
   document.querySelector('.btn-cart').addEventListener('click', () => {
