@@ -6,6 +6,19 @@ const getProducts = async () => {
   return response.json();
 };
 
+const findElement = (startElement, selector) => {
+  let currentElement = startElement;
+
+  while (currentElement) {
+    if (currentElement.matches(selector)) {
+      return currentElement;
+    }
+
+    currentElement = currentElement.parentElement;
+  }
+  return null;
+};
+
 async function main() {
   const products = await getProducts();
 
@@ -13,16 +26,16 @@ async function main() {
 
   const produtcsTemplate = products
     .map(
-      ({ name, images, regularPrice }) => `
-    <div class='product'>
+      ({ name, images, regularPrice, id }) => `
+    <div class='product' data-product-id='${id}'>
       <img src='${images[0]}' alt='img-product'/>
       <p>${name}</p>
       <div class='flex items-center justify-between'>
         <span>Price : ${regularPrice}</span>
         <div>
-          <button class='bg-green-200 hover:bg-green-300 text-green-800 py-1 px-3 rounded-full'>+</button>
+          <button class='btn-decrease bg-green-200 hover:bg-green-300 text-green-800 py-1 px-3 rounded-full'>+</button>
           <span class='hidden'>3</span>
-          <button class='bg-green-200 hover:bg-green-300 text-green-800 py-1 px-3 rounded-full'>- </button>
+          <button class='btn-increase bg-green-200 hover:bg-green-300 text-green-800 py-1 px-3 rounded-full'>- </button>
         </div>
       </div>
     </div>`
@@ -30,6 +43,21 @@ async function main() {
     .join('');
 
   $products.innerHTML = produtcsTemplate;
+
+  document.querySelector('#products').addEventListener('click', (e) => {
+    const $targetElement = e.target;
+    const $productCardElement = findElement($targetElement, '.product');
+
+    const productId = $productCardElement.getAttribute('data-product-id');
+    const currentProduct = products.find((ele) => ele.id === productId);
+
+    if ($targetElement.matches('.btn-decrease')) {
+      console.log('decrease');
+    }
+    if ($targetElement.matches('.btn-increase')) {
+      console.log('increase');
+    }
+  });
 }
 
 main();
