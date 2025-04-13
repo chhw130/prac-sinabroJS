@@ -2,7 +2,6 @@ const BASE_URL = 'https://learnwitheunjae.dev/api/sinabro-js/ecommerce';
 
 const getProducts = async () => {
   const response = await fetch(BASE_URL);
-
   return response.json();
 };
 
