@@ -1,7 +1,6 @@
 import { setupCart } from './cart';
 import { setupCounter } from './counter';
 import { setupProducts } from './products';
-import { findElement } from './utils';
 
 const updateTotalCount = (totalCount) => {
   document.querySelector('.total_count').innerHTML = `(${totalCount})`;
