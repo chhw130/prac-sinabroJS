@@ -1,3 +1,5 @@
+import { bindReactivyStates } from './reactivity';
+
 export const setupCounter = () => {
   const [getCountMap, setCountMap] = bindReactivyStates({ name: 'countMap', defaultValue: {} });
 
