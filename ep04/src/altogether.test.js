@@ -23,7 +23,7 @@ describe('altogether', () => {
     const idsToExtract = [1, 2, 5];
 
     // TODO: do something here
-    const extractedUsers = [];
+    const extractedUsers = users.filter((user) => idsToExtract.includes(user.id));
     expect(extractedUsers).toEqual([
       {
         id: 1,
@@ -61,7 +61,13 @@ describe('altogether', () => {
     ];
 
     // TODO: do something here
-    const uniqueUsers = [];
+    const uniqueUsers = users.reduce((acc, user) => {
+      if (acc.find((findUser) => findUser.id === user.id)) {
+        return acc;
+      }
+      acc.push(user);
+      return acc;
+    }, []);
     expect(uniqueUsers).toEqual([
       {
         id: 1,
@@ -97,7 +103,9 @@ describe('altogether', () => {
       },
     ];
     // TODO: do something here
-    const movieTitles = [];
+    const movieTitles = movies
+      .filter(({ title, year }) => title.charAt(0) === 'A' && year < 2020)
+      .map(({ title }) => title);
     expect(movieTitles).toEqual(['A Quiet Place']);
   });
 });
